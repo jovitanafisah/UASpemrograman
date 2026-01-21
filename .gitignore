@@ -1,0 +1,10 @@
+MyApp/__pycache__/Model602.cpython-314.pyc
+MyApp/__pycache__/Model614.cpython-314.pyc
+
+__pycache__
+.vscode
+
+node_modules/
+env/
+
+api\node_modules
