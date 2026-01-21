@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block atas7 %}Form Jovi{% endblock %}
+{% block tengah7 %}
+<h3 class="text-info mb-3">Form Data Pelanggan</h3>
+
+<!-- FORM TAMBAH -->
+<form method="POST" class="mb-4">
+    <input type="text" name="nama602" placeholder="Nama Pelanggan" class="form-control mb-2" required>
+    <input type="text" name="alamat602" placeholder="Alamat" class="form-control mb-2" required>
+    <input type="text" name="telepon602" placeholder="Telepon" class="form-control mb-2" required>
+    <input type="email" name="email602" placeholder="Email" class="form-control mb-3" required>
+    <input type="number" name="jumlahpesanan602" placeholder="Jumlah Pesanan" class="form-control mb-2" required>
+    <button type="submit" class="btn btn-info">Tambah Pelanggan</button>
+</form>
+
+<!-- DATA PELANGGAN -->
+<h5>Data Pelanggan:</h5>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th><th>Nama</th><th>Alamat</th><th>Telepon</th><th>Email</th> <th>Jumlah Pesanan</th> <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in data %} 
+        <tr id="row-{{ p[0] }}">
+            <td>{{ p[0] }}</td>
+            <td id="name-{{ p[0] }}">{{ p[1] }}</td>
+            <td id="addr-{{ p[0] }}">{{ p[2] }}</td>
+            <td id="tel-{{ p[0] }}">{{ p[3] }}</td>
+            <td id="email-{{ p[0] }}">{{ p[4] }}</td>
+            <td id="jumlahpesanan-{{ p[0] }}">{{ p[5] }}</td>
+            <td>
+                <button          
+                    class="btn btn-sm btn-primary edit-btn" 
+                    data-id="{{ p[0] }}" 
+                    data-name="{{ p[1] }}" 
+                    data-addr="{{ p[2] }}" 
+                    data-tel="{{ p[3] }}" 
+                    data-email="{{ p[4] }}"
+                    data-jumlahpesanan="{{ p[5] }}">Edit</button>
+                    
+                <button class="delete-btn btn btn-sm btn-danger" data-id="{{ p[0] }}">Hapus</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- FORM EDIT (sembunyi dulu) -->
+<div id="editForm" style="display:none;" class="card p-3 mt-4">
+    <h3>Edit Data Pelanggan</h3>
+
+    <label>Nama:</label>
+    <input type="text" id="editName" class="form-control mb-2">
+
+    <label>Alamat:</label>
+    <input type="text" id="editAddr" class="form-control mb-2">
+
+    <label>Telepon:</label>
+    <input type="text" id="editTel" class="form-control mb-2">
+
+    <label>Email:</label>
+    <input type="email" id="editEmail" class="form-control mb-3">
+
+     <label>Jumlah Pesanan:</label>
+    <input type="text" id="editJumlahPesanan" class="form-control mb-2">
+
+
+    <button type="button" id="saveBtn" class="btn btn-success">Simpan</button>
+    <button type="button" id="cancelBtn" class="btn btn-secondary">Batal</button>
+</div>
+
+<!-- jQuery untuk edit -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // variabel untuk menyimpan id yang sedang diedit (mengganti hidden input)
+    let currentId = null;
+
+    // Tampilkan form edit
+    $('.edit-btn').click(function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        const addr = $(this).data('addr');
+        const tel = $(this).data('tel');
+        const email = $(this).data('email');
+        const jumlahPesanan = $(this).data('jumlahpesanan');
+
+        // simpan id ke variabel currentId agar dapat dipakai saat simpan
+        currentId = id;
+        $('#editName').val(name);
+        $('#editAddr').val(addr);
+        $('#editTel').val(tel);
+        $('#editEmail').val(email);
+        $('#editJumlahPesanan').val(jumlahPesanan);
+        $('#editForm').show();
+    });
+
+    // Tombol batal
+    $('#cancelBtn').click(function() {
+        $('#editForm').hide();
+        currentId = null;
+    });
+
+    // Simulasi update tampilan (perbaikan)
+    $("#saveBtn").click(function () {
+          const id = currentId;
+          if (!id) { alert('ID tidak tersedia'); return; }
+
+          const nama = $("#editName").val();
+          const alamat = $("#editAddr").val();
+          const telepon = $("#editTel").val();
+          const email = $("#editEmail").val();
+          const jumlahPesanan = $("#editJumlahPesanan").val();
+
+          fetch(`/edit_pelanggan/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            // kirim field sesuai yang dipakai di template/backend (nama, alamat, telepon, email)
+            body: JSON.stringify({ nama, alamat, telepon, email }),
+          })
+            .then((r) => r.json())
+            .then((data) => {
+              if (data.success) {
+                // perbarui semua kolom yang relevan di baris tabel
+                $(`#name-${id}`).text(nama);
+                $(`#addr-${id}`).text(alamat);
+                $(`#tel-${id}`).text(telepon);
+                $(`#email-${id}`).text(email);
+                $(`#jumlahpesanan-${id}`).text(jumlahPesanan);
+                $("#editForm").hide();
+                currentId = null;
+                alert("✅ Data berhasil diupdate!");
+              } else {
+                alert("Update gagal: " + (data.message || ''));
+              }
+            })
+            .catch(() => { alert('Terjadi error jaringan'); });
+        });
+    
+    $(".delete-btn").click(function () {
+          const id = $(this).data("id");
+          if (confirm("Yakin menghapus?")) {
+            fetch(`/hapus_pelanggan/${id}`, { method: "DELETE" })
+              .then((r) => r.json())
+              .then((data) => {
+                if (data.success) {
+                  $(`#row-${id}`).remove();
+                  alert("🗑️ User dihapus!");
+                } else {
+                  alert("Gagal menghapus: " + (data.message || ''));
+                }
+              })
+              .catch(() => { alert('Terjadi error jaringan'); });
+          }
+        });
+
+});
+</script>
+{% endblock %}
+{% block bawah7 %}
+<!-- 🔹 Footer tetap di bawah -->
+<footer class="bg-info text-white text-center py-3 mt-auto">
+    <div class="container">
+        <p class="mb-1 fw-bold">© 2025 Kelompok 7 - Atha & Jovi</p>
+        <p class="mb-0">Sistem Pendataan Barang dan Pelanggan</p>
+    </div>
+</footer>
+
+{% endblock %}

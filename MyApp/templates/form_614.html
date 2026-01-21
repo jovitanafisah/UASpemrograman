@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block atas7 %}Form Atha{% endblock %}
+{% block tengah7 %}
+<h3 class="text-info mb-3">Form Data Barang </h3>
+
+<!-- FORM TAMBAH -->
+<form method="POST" class="mb-4">
+    <input type="text" name="nama614" placeholder="Nama Barang" class="form-control mb-2" required>
+    <input type="text" name="kategori614" placeholder="Kategori" class="form-control mb-2" required>
+    <input type="number" name="stok614" placeholder="Stok" class="form-control mb-2" required>
+    <input type="number" name="harga614" placeholder="Harga Barang" class="form-control mb-3" required>
+    <input type="text" name="catatan614" placeholder="Catatan" class="form-control mb-2" required>
+    <button type="submit" class="btn btn-info">Tambah Barang</button>
+</form>
+
+<!-- DATA BARANG -->
+<h5>Data Barang:</h5>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th><th>Nama</th><th>Kategori</th><th>Stok</th><th>Harga</th><th>Catatan</th><th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in data %}
+        <tr id="row-{{ b[0] }}">
+            <td>{{ b[0] }}</td>
+            <td id="name-{{ b[0] }}">{{ b[1] }}</td>
+            <td id="cat-{{ b[0] }}">{{ b[2] }}</td>
+            <td id="stok-{{ b[0] }}">{{ b[3] }}</td>
+            <td id="harga-{{ b[0] }}">{{ b[4] }}</td>
+            <td id="catatan-{{ b[0] }}">{{ b[5] }}</td>
+            <td>
+                <button 
+                    class="btn btn-sm btn-primary edit-btn"
+                    data-id="{{ b[0] }}"
+                    data-nama="{{ b[1] }}"
+                    data-kategori="{{ b[2] }}"
+                    data-stok="{{ b[3] }}"
+                    data-harga="{{ b[4] }}"
+                    data-catatan="{{ b[5] }}">
+                    Edit
+                </button>
+                <button class="delete-btn btn btn-sm btn-danger" data-id="{{ b[0] }}">Hapus</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- FORM EDIT (sembunyi dulu) -->
+<div id="editForm" style="display:none;" class="card p-3 mt-4">
+    <h3>Edit Data Barang</h3>
+
+    <label>Nama Barang:</label>
+    <input type="text" id="editNama" class="form-control mb-2">
+
+    <label>Kategori:</label>
+    <input type="text" id="editKategori" class="form-control mb-2">
+
+    <label>Stok:</label>
+    <input type="number" id="editStok" class="form-control mb-2">
+
+    <label>Harga:</label>
+    <input type="number" id="editHarga" class="form-control mb-3">
+
+    <label>Catatan:</label>
+    <input type="text" id="editCatatan" class="form-control mb-2">
+
+    <button type="button" id="saveBtn" class="btn btn-success">Simpan</button>
+    <button type="button" id="cancelBtn" class="btn btn-secondary">Batal</button>
+</div>
+
+<!-- jQuery untuk edit -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    let currentId = null;
+
+    // Tampilkan form edit dan simpan id yang sedang diedit
+    $('.edit-btn').click(function() {
+        currentId = $(this).data('id');
+        $('#editNama').val($(this).data('nama'));
+        $('#editKategori').val($(this).data('kategori'));
+        $('#editStok').val($(this).data('stok'));
+        $('#editHarga').val($(this).data('harga'));
+        $('#editCatatan').val($(this).data('catatan'));
+        $('#editForm').show();
+    });
+
+    // Batal
+    $('#cancelBtn').click(function() {
+        currentId = null;
+        $('#editForm').hide();
+    });
+
+    // Simpan perubahan (update tampilan dan kirim ke server)
+    $('#saveBtn').click(function() {
+        if (!currentId) { alert('Tidak ada data yang dipilih'); return; }
+
+        const nama = $('#editNama').val();
+        const kategori = $('#editKategori').val();
+        const stok = $('#editStok').val();
+        const harga = $('#editHarga').val();
+        const catatan = $('#editCatatan').val();
+
+        fetch(`/edit_barang/${currentId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nama, kategori, stok, harga, catatan }),
+        })
+        .then((r) => r.json())
+        .then((data) => {
+            if (data.success) {
+                $(`#name-${currentId}`).text(nama);
+                $(`#cat-${currentId}`).text(kategori);
+                $(`#stok-${currentId}`).text(stok);
+                $(`#harga-${currentId}`).text(harga);
+                $(`#catatan-${currentId}`).text(catatan);
+                $('#editForm').hide();
+                currentId = null;
+                alert('✅ Data berhasil diupdate!');
+            } else {
+                alert('Update gagal: ' + (data.message || ''));
+            }
+        })
+        .catch(() => { alert('Terjadi error jaringan'); });
+    });
+
+    // Hapus (tetap sama, hanya perbaikan teks pesan)
+    $(".delete-btn").click(function () {
+        const id = $(this).data("id");
+        if (confirm("Yakin menghapus?")) {
+            fetch(`/hapus_barang/${id}`, { method: "DELETE" })
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.success) {
+                    $(`#row-${id}`).remove();
+                    alert("🗑️ Data dihapus!");
+                } else {
+                    alert("Gagal menghapus: " + (data.message || ''));
+                }
+            })
+            .catch(() => { alert('Terjadi error jaringan'); });
+        }
+    });
+});
+</script>
+{% endblock %}
+{% block bawah7 %}
+<!-- 🔹 Footer tetap di bawah -->
+<footer class="bg-info text-white text-center py-3 mt-auto">
+    <div class="container">
+        <p class="mb-1 fw-bold">© 2025 Kelompok 7 - Atha & Jovi</p>
+        <p class="mb-0">Sistem Pendataan Barang dan Pelanggan</p>
+    </div>
+</footer>
+{% endblock %}
