@@ -25,30 +25,26 @@ const db = new sqlite3.Database("../MyApp/UTS7.db", (err) => {
 
 app.get("/pelanggan602", (req, res) => {
   let page = parseInt(req.query.page) || 1;
-
   let limit = parseInt(req.query.limit) || 10;
-
   let offset = (page - 1) * limit;
 
   const countQuery = "SELECT COUNT(*) AS total FROM pelanggan602";
-
-  const dataQuery = `SELECT * FROM pelanggan602 LIMIT ? OFFSET ?`;
+  
+  // Pastikan urutannya: ORDER BY -> LIMIT -> OFFSET
+  const dataQuery = "SELECT * FROM pelanggan602 ORDER BY id DESC LIMIT ? OFFSET ?";
 
   db.get(countQuery, [], (err, countResult) => {
     if (err) return res.status(500).json({ error: err.message });
 
+    // Pastikan parameter yang dikirim sesuai dengan jumlah tanda tanya (?)
     db.all(dataQuery, [limit, offset], (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
 
       res.json({
         total_data: countResult.total,
-
         page: page,
-
         limit: limit,
-
-        total_page: Math.ceil(countResult.total / limit),
-
+        total_page: Math.ceil(countResult.total / (limit || 1)), // Proteksi pembagian nol
         data: rows,
       });
     });
@@ -183,14 +179,12 @@ app.delete("/pelanggan602/:id", (req, res) => {
 
 app.get("/barang614", (req, res) => {
   let page = parseInt(req.query.page) || 1;
-
   let limit = parseInt(req.query.limit) || 10;
-
   let offset = (page - 1) * limit;
 
   const countQuery = "SELECT COUNT(*) AS total FROM barang614";
-
-  const dataQuery = `SELECT * FROM barang614 LIMIT ? OFFSET ?`;
+  
+  const dataQuery = `SELECT * FROM barang614 ORDER BY id DESC LIMIT ? OFFSET ?`;
 
   db.get(countQuery, [], (err, countResult) => {
     if (err) return res.status(500).json({ error: err.message });
