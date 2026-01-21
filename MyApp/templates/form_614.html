@@ -1,158 +1,280 @@
-{% extends "base.html" %}
-{% block atas7 %}Form Atha{% endblock %}
-{% block tengah7 %}
-<h3 class="text-info mb-3">Form Data Barang </h3>
+{% extends "base.html" %} {% block atas7 %} Form Atha {% endblock %} {% block
+tengah7 %}
+<h3 class="text-info mb-3">Form Data Barang</h3>
 
 <!-- FORM TAMBAH -->
-<form method="POST" class="mb-4">
-    <input type="text" name="nama614" placeholder="Nama Barang" class="form-control mb-2" required>
-    <input type="text" name="kategori614" placeholder="Kategori" class="form-control mb-2" required>
-    <input type="number" name="stok614" placeholder="Stok" class="form-control mb-2" required>
-    <input type="number" name="harga614" placeholder="Harga Barang" class="form-control mb-3" required>
-    <input type="text" name="catatan614" placeholder="Catatan" class="form-control mb-2" required>
-    <button type="submit" class="btn btn-info">Tambah Barang</button>
+<form method="POST" id="userForm" class="mb-4">
+  <input
+    type="text"
+    name="nama"
+    placeholder="Nama Barang"
+    class="form-control mb-2"
+    required
+  />
+  <input
+    type="text"
+    name="kategori"
+    placeholder="Kategori"
+    class="form-control mb-2"
+    required
+  />
+  <input
+    type="number"
+    name="stok"
+    placeholder="Stok"
+    class="form-control mb-2"
+    required
+  />
+  <input
+    type="number"
+    name="harga"
+    placeholder="Harga Barang"
+    class="form-control mb-2"
+    required
+  />
+  <input
+    type="text"
+    name="catatan"
+    placeholder="Catatan"
+    class="form-control mb-3"
+    required
+  />
+  <button id="tombolsimpan" type="submit" class="btn btn-info">
+    Tambah Barang
+  </button>
 </form>
 
 <!-- DATA BARANG -->
-<h5>Data Barang:</h5>
+<h5>Data Barang</h5>
 <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th><th>Nama</th><th>Kategori</th><th>Stok</th><th>Harga</th><th>Catatan</th><th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for b in data %}
-        <tr id="row-{{ b[0] }}">
-            <td>{{ b[0] }}</td>
-            <td id="name-{{ b[0] }}">{{ b[1] }}</td>
-            <td id="cat-{{ b[0] }}">{{ b[2] }}</td>
-            <td id="stok-{{ b[0] }}">{{ b[3] }}</td>
-            <td id="harga-{{ b[0] }}">{{ b[4] }}</td>
-            <td id="catatan-{{ b[0] }}">{{ b[5] }}</td>
-            <td>
-                <button 
-                    class="btn btn-sm btn-primary edit-btn"
-                    data-id="{{ b[0] }}"
-                    data-nama="{{ b[1] }}"
-                    data-kategori="{{ b[2] }}"
-                    data-stok="{{ b[3] }}"
-                    data-harga="{{ b[4] }}"
-                    data-catatan="{{ b[5] }}">
-                    Edit
-                </button>
-                <button class="delete-btn btn btn-sm btn-danger" data-id="{{ b[0] }}">Hapus</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nama</th>
+      <th>Kategori</th>
+      <th>Stok</th>
+      <th>Harga</th>
+      <th>Catatan</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for b in data.data %}
+    <tr id="row-{{ b.id }}">
+      <td>{{ b.id }}</td>
+      <td id="name-{{ b.id }}">{{ b.nama }}</td>
+      <td id="cat-{{ b.id }}">{{ b.kategori }}</td>
+      <td id="stok-{{ b.id }}">{{ b.stok }}</td>
+      <td id="harga-{{ b.id }}">{{ b.harga }}</td>
+      <td id="catatan-{{ b.id }}">{{ b.catatan }}</td>
+      <td>
+        <button
+          class="btn btn-sm btn-primary edit-btn"
+          data-id="{{ b.id }}"
+          data-nama="{{ b.nama }}"
+          data-kategori="{{ b.kategori }}"
+          data-stok="{{ b.stok }}"
+          data-harga="{{ b.harga }}"
+          data-catatan="{{ b.catatan }}"
+        >
+          Edit
+        </button>
+        <button class="btn btn-sm btn-danger delete-btn" data-id="{{ b.id }}">
+          Hapus
+        </button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 
-<!-- FORM EDIT (sembunyi dulu) -->
-<div id="editForm" style="display:none;" class="card p-3 mt-4">
-    <h3>Edit Data Barang</h3>
+<!-- FORM EDIT -->
+<div id="editForm" style="display: none" class="card p-3 mt-4">
+  <h4 class="text-warning">Edit Data Barang</h4>
 
-    <label>Nama Barang:</label>
-    <input type="text" id="editNama" class="form-control mb-2">
+  <input
+    type="text"
+    id="editNama"
+    class="form-control mb-2"
+    placeholder="Nama Barang"
+  />
+  <input
+    type="text"
+    id="editKategori"
+    class="form-control mb-2"
+    placeholder="Kategori"
+  />
+  <input
+    type="number"
+    id="editStok"
+    class="form-control mb-2"
+    placeholder="Stok"
+  />
+  <input
+    type="number"
+    id="editHarga"
+    class="form-control mb-2"
+    placeholder="Harga"
+  />
+  <input
+    type="text"
+    id="editCatatan"
+    class="form-control mb-3"
+    placeholder="Catatan"
+  />
 
-    <label>Kategori:</label>
-    <input type="text" id="editKategori" class="form-control mb-2">
-
-    <label>Stok:</label>
-    <input type="number" id="editStok" class="form-control mb-2">
-
-    <label>Harga:</label>
-    <input type="number" id="editHarga" class="form-control mb-3">
-
-    <label>Catatan:</label>
-    <input type="text" id="editCatatan" class="form-control mb-2">
-
-    <button type="button" id="saveBtn" class="btn btn-success">Simpan</button>
-    <button type="button" id="cancelBtn" class="btn btn-secondary">Batal</button>
+  <button id="saveBtn" class="btn btn-success">Simpan</button>
+  <button id="cancelBtn" class="btn btn-secondary">Batal</button>
 </div>
 
-<!-- jQuery untuk edit -->
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center">
+
+    <!-- PREVIOUS -->
+    <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+      <a class="page-link"
+         href="{{ url_for('form_602', page=page-1, limit=10) }}">
+         Previous
+      </a>
+    </li>
+
+    <!-- NOMOR HALAMAN -->
+    {% for p in range(1, total_pages + 1) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link"
+           href="{{ url_for('form_602', page=p, limit=10) }}">
+           {{ p }}
+        </a>
+      </li>
+    {% endfor %}
+
+    <!-- NEXT -->
+    <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+      <a class="page-link"
+         href="{{ url_for('form_602', page=page+1, limit=10) }}">
+         Next
+      </a>
+    </li>
+
+  </ul>
+</nav>
+
+
+<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
-$(document).ready(function() {
-    let currentId = null;
+  $(document).ready(function () {
+    const API_URL = "http://localhost:3000/barang614";
 
-    // Tampilkan form edit dan simpan id yang sedang diedit
-    $('.edit-btn').click(function() {
-        currentId = $(this).data('id');
-        $('#editNama').val($(this).data('nama'));
-        $('#editKategori').val($(this).data('kategori'));
-        $('#editStok').val($(this).data('stok'));
-        $('#editHarga').val($(this).data('harga'));
-        $('#editCatatan').val($(this).data('catatan'));
-        $('#editForm').show();
-    });
+    // Simpan Button Click
+    $("#tombolsimpan").click(async function (e) {
+      e.preventDefault();
 
-    // Batal
-    $('#cancelBtn').click(function() {
-        currentId = null;
-        $('#editForm').hide();
-    });
+      const form = document.getElementById("userForm");
+      const data = Object.fromEntries(new FormData(form).entries());
 
-    // Simpan perubahan (update tampilan dan kirim ke server)
-    $('#saveBtn').click(function() {
-        if (!currentId) { alert('Tidak ada data yang dipilih'); return; }
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
 
-        const nama = $('#editNama').val();
-        const kategori = $('#editKategori').val();
-        const stok = $('#editStok').val();
-        const harga = $('#editHarga').val();
-        const catatan = $('#editCatatan').val();
-
-        fetch(`/edit_barang/${currentId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nama, kategori, stok, harga, catatan }),
-        })
-        .then((r) => r.json())
-        .then((data) => {
-            if (data.success) {
-                $(`#name-${currentId}`).text(nama);
-                $(`#cat-${currentId}`).text(kategori);
-                $(`#stok-${currentId}`).text(stok);
-                $(`#harga-${currentId}`).text(harga);
-                $(`#catatan-${currentId}`).text(catatan);
-                $('#editForm').hide();
-                currentId = null;
-                alert('✅ Data berhasil diupdate!');
-            } else {
-                alert('Update gagal: ' + (data.message || ''));
-            }
-        })
-        .catch(() => { alert('Terjadi error jaringan'); });
-    });
-
-    // Hapus (tetap sama, hanya perbaikan teks pesan)
-    $(".delete-btn").click(function () {
-        const id = $(this).data("id");
-        if (confirm("Yakin menghapus?")) {
-            fetch(`/hapus_barang/${id}`, { method: "DELETE" })
-            .then((r) => r.json())
-            .then((data) => {
-                if (data.success) {
-                    $(`#row-${id}`).remove();
-                    alert("🗑️ Data dihapus!");
-                } else {
-                    alert("Gagal menghapus: " + (data.message || ''));
-                }
-            })
-            .catch(() => { alert('Terjadi error jaringan'); });
+        if (res.ok) {
+          alert("✅ Data berhasil disimpan!");
+          location.reload();
+        } else {
+          alert("❌ Gagal menyimpan data");
         }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("❌ Error koneksi API");
+      }
     });
-});
+
+    // Edit button click
+    $(".edit-btn").click(function () {
+      const id = $(this).data("id");
+      $("#editNama").val($(this).data("nama"));
+      $("#editKategori").val($(this).data("kategori"));
+      $("#editStok").val($(this).data("stok"));
+      $("#editHarga").val($(this).data("harga"));
+      $("#editCatatan").val($(this).data("catatan"));
+      $("#editForm").show();
+      $("#saveBtn").data("id", id);
+    });
+
+    // Save button click
+    $("#saveBtn").click(async function (e) {
+      e.preventDefault();
+
+      const id = $("#saveBtn").data("id");
+      const data = {
+        nama: $("#editNama").val(),
+        kategori: $("#editKategori").val(),
+        stok: $("#editStok").val(),
+        harga: $("#editHarga").val(),
+        catatan: $("#editCatatan").val(),
+      };
+
+      try {
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (res.ok) {
+          alert("✅ Data berhasil dirubah!");
+          location.reload();
+        } else {
+          alert("❌ Gagal menyimpan data");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("❌ Error koneksi API");
+      }
+    });
+
+    // Cancel button click
+    $("#cancelBtn").click(function () {
+      $("#editForm").hide();
+    });
+
+    // Delete button click
+    $(".delete-btn").click(async function () {
+      const id = $(this).data("id");
+
+      if (!confirm("Yakin menghapus data ini?")) return;
+
+      try {
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: "DELETE",
+        });
+
+        if (res.ok) {
+          alert("🗑️ Data berhasil dihapus");
+          setTimeout(() => location.reload(), 500);
+        } else {
+          alert("❌ Gagal menghapus data");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error koneksi API");
+      }
+    });
+  });
 </script>
-{% endblock %}
-{% block bawah7 %}
-<!-- 🔹 Footer tetap di bawah -->
+
+{% endblock %} {% block bawah7 %}
 <footer class="bg-info text-white text-center py-3 mt-auto">
-    <div class="container">
-        <p class="mb-1 fw-bold">© 2025 Kelompok 7 - Atha & Jovi</p>
-        <p class="mb-0">Sistem Pendataan Barang dan Pelanggan</p>
-    </div>
+  <p class="mb-1 fw-bold">© 2025 Kelompok 7 - Atha & Jovi</p>
+  <p class="mb-0">Sistem Pendataan Barang dan Pelanggan</p>
 </footer>
 {% endblock %}
