@@ -1,8 +1,11 @@
-import email
+import math
+import requests
 from flask import Flask, render_template, request, redirect, url_for, jsonify   
 import Model602 as pelanggan
 import Model614 as barang
 app = Flask(__name__)
+
+API_URL = "http://localhost:3000"
 
 
 # ---------- Halaman utama ----------
@@ -22,73 +25,52 @@ def form():
 
 
 # ---------- Form Atha (Data Barang) ----------
-@app.route('/form_614', methods=['GET', 'POST'])
+@app.route('/form_614')
 def form_614():
-    if request.method == 'POST':
-        nama = request.form['nama614']
-        kategori = request.form['kategori614']
-        stok = int(request.form['stok614'])
-        harga = int(request.form['harga614'])
-        catatan = request.form['catatan614']
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 10, type=int)
+    
+    resp = requests.get(
+        f"{API_URL}/barang614",
+        params={
+            "page": page,
+            "limit": limit
+        }
+    )
+    data = resp.json()
 
-        barang.add_barang(nama, kategori, stok, harga, catatan)
-        return redirect(url_for('form_614'))
+    total_data = data.get('total', 0)
+    total_pages = math.ceil(total_data / limit)
 
-    data = barang.get_barang_all()
-    return render_template('form_614.html', data=data)
-
-
-@app.route('/edit_barang/<int:id>', methods=['PUT'])
-def edit_barang(id):
-    data = request.get_json()
-    success = barang.update_barang(id,
-                            data.get('nama'),
-                            data.get('kategori'),
-                            data.get('stok'),
-                            data.get('harga'),
-                            data.get('catatan'))
-    return jsonify(success=success)
-
-
-@app.route('/hapus_barang/<int:id>', methods=['DELETE'])
-def hapus_barang(id):
-    success = barang.delete_barang(id)
-    return jsonify(success=success)
-
+    return render_template('form_614.html', data=data, page=page, total_pages=total_pages)
 
 # ---------- Form Jovi (Data Pelanggan) ----------
 @app.route('/form_602', methods=['GET', 'POST'])
 def form_602():     
-    if request.method == 'POST':
-        nama = request.form['nama602']
-        alamat = request.form['alamat602']
-        telepon = request.form['telepon602']
-        email = request.form['email602']
-        jumlahpesanan = int(request.form['jumlahpesanan602'])
-# memanggil fungsi add_pelanggan dari Model602.py
-        pelanggan.add_pelanggan(nama, alamat, telepon, email, jumlahpesanan)
-        return redirect(url_for('form_602'))
-# menampilkan semua data pelanggan
-    data = pelanggan.get_pelanggan_all()
-    return render_template('form_602.html', data=data)
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 10, type=int)
 
-#memperbarui data pelanggan berdasarkan id
-@app.route('/edit_pelanggan/<int:id>', methods=['PUT'])
-def edit_pelanggan(id):
-    data = request.get_json()
-    success = pelanggan.update_pelanggan(id,
-                               data.get('nama'),
-                               data.get('alamat'),
-                               data.get('telepon'),
-                               data.get('email'),
-                               data.get('jumlahpesanan'))
-    return jsonify(success=success)
+    resp = requests.get(
+        f"{API_URL}/pelanggan602",
+        params={
+            "page": page,
+            "limit": limit
+        }
+    )
 
-#menghapus data pelanggan berdasarkan id
-@app.route('/hapus_pelanggan/<int:id>', methods=['DELETE'])
-def hapus_pelanggan(id):
-    success = pelanggan.delete_pelanggan(id)
-    return jsonify(success=success)
+    data = resp.json()
+
+    total_data = data.get('total', 0)
+    total_pages = math.ceil(total_data / limit)
+
+    return render_template(
+        'form_602.html',
+        data=data,
+        page=page,
+        total_pages=total_pages
+    )
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
